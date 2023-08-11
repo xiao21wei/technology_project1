@@ -1,5 +1,6 @@
 import os
 import cv2
+import time
 import numpy as np
 from scipy.spatial.distance import hamming
 
@@ -20,6 +21,7 @@ def image_hash(target_image):
     for row in target_image.tolist():
         for i in row:
             target_image_hash.append(int(i))
+    print(target_image_hash)
     return target_image_hash
     pass
 
@@ -33,6 +35,7 @@ def model_hash_test():
     # 计算图像的哈希值
     target_image_hash = image_hash(target_image)
 
+    data = []
     for file in os.listdir('./img/picture'):
         image_path = os.path.join('./img/picture', file)
         search_image = cv2.imread(image_path)  # 读取待搜索图片
@@ -46,7 +49,7 @@ def model_hash_test():
             # 计算窗口的哈希值
             window_hash = image_hash(window)
             # 计算哈希值的汉明距离,并计算相似度,汉明距离越小,相似度越高
-            similarity = 1 - hamming(list(window_hash), list(target_image_hash))
+            similarity = round(1 - hamming(target_image_hash, window_hash), 8)
             # 如果相似度较高，则保存窗口位置和相似度
             if similarity > 0.7:
                 similar_regions.append((x, y, similarity))
@@ -54,6 +57,7 @@ def model_hash_test():
         # 复制待搜索图片并在复制的图片上画矩形框
         search_image_with_boxes = search_image.copy()
         matched_locations = []
+        similarities = []
         for x, y, similarity in similar_regions:
             top_left = (x, y)
             bottom_right = (x + target_image.shape[1], y + target_image.shape[0])
@@ -70,10 +74,13 @@ def model_hash_test():
                 cv2.rectangle(search_image_with_boxes, top_left, bottom_right, (0, 255, 0), 2)
                 print(f'Found similar region with similarity {similarity} at {top_left}')
                 matched_locations.append((top_left, bottom_right))
+                similarities.append(similarity)
 
         # 保存结果
         cv2.imwrite('./img/result/' + file, search_image_with_boxes)
-        pass
+        data.append(similarities)
+    print(data)
+    pass
 
 
 def sliding_window(image, window_size, stride):
@@ -83,4 +90,7 @@ def sliding_window(image, window_size, stride):
 
 
 if __name__ == '__main__':
+    time1 = time.time()
     model_hash_test()
+    time2 = time.time()
+    print('总共耗时：' + str(time2 - time1) + 's')

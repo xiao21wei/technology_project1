@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="Black">
+    <option name="executionMode" value="BINARY" />
+    <option name="pathToExecutable" value="D:\anaconda3\Scripts\black.exe" />
+    <option name="sdkUUID" value="aa7ce026-1db4-41c4-80a9-8d88d6e662db" />
+  </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="django" project-jdk-type="Python SDK" />
 </project>

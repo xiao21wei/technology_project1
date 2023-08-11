@@ -1,4 +1,5 @@
 import os
+import time
 import cv2
 import numpy as np
 from tensorflow import keras
@@ -25,6 +26,7 @@ def model_test():
     # 提取目标图像的特征
     target_features = model.predict(target_image_preprocessed).flatten()
 
+    data = []
     for file in os.listdir('./img/picture'):
         image_path = os.path.join('./img/picture', file)
         search_image = cv2.imread(image_path)  # 读取待搜索图片
@@ -53,6 +55,7 @@ def model_test():
         # 复制待搜索图片并在复制的图片上画矩形框
         search_image_with_boxes = search_image.copy()
         matched_locations = []
+        similarities = []
         for x, y, similarity in similar_regions:
             top_left = (x, y)
             bottom_right = (x + target_image.shape[1], y + target_image.shape[0])
@@ -68,12 +71,15 @@ def model_test():
             if not overlapping:
                 cv2.rectangle(search_image_with_boxes, top_left, bottom_right, (0, 255, 0), 2)
                 print(f'Found similar region with similarity {similarity} at {top_left}')
+                similarities.append(str(similarity))
                 matched_locations.append((top_left, bottom_right))
 
         # 保存结果
         search_image_with_boxes = cv2.cvtColor(search_image_with_boxes, cv2.COLOR_RGB2BGR)
         cv2.imwrite('./img/result/' + file, search_image_with_boxes)
-        pass
+        data.append(similarities)
+    print(data)
+    pass
 
 
 def sliding_window(image, window_size, stride):
@@ -83,4 +89,7 @@ def sliding_window(image, window_size, stride):
 
 
 if __name__ == '__main__':
+    time1 = time.time()
     model_test()
+    time2 = time.time()
+    print('总共耗时：' + str(time2 - time1) + 's')

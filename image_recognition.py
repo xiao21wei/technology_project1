@@ -2,6 +2,7 @@
 # 与./img/picture/目录下的图片进行比较,找出每张图片中与target相似度较高的部分
 # 将相似度较高的部分用矩形框标记出来，并将结果保存在./img/result文件夹中
 import copy
+import time
 import cv2
 import numpy as np
 from tensorflow import keras
@@ -30,6 +31,7 @@ def image_recognition_test(method, threshold):  # method:匹配方法 threshold:
         # 复制待搜索图片并在复制的图片上画矩形框
         search_image_with_boxes = copy.deepcopy(source_image)
         matched_locations = []
+        similarities = []
         for loc in zip(*locations[::-1]):  # *号表示可选参数
             top_left = (loc[0], loc[1])  # 左上角,loc[0]为x坐标,loc[1]为y坐标
             bottom_right = (loc[0] + target_image.shape[1], loc[1] + target_image.shape[0])  # 右下角,loc[0]为x坐标,loc[1]为y坐标
@@ -45,18 +47,18 @@ def image_recognition_test(method, threshold):  # method:匹配方法 threshold:
             if not overlapping:
                 count += 1
                 cv2.rectangle(search_image_with_boxes, top_left, bottom_right, (0, 255, 0), 2)
+                similarities.append(str(res[loc[1], loc[0]]))
                 matched_locations.append((top_left, bottom_right))
 
         # 保存结果
         cv2.imwrite('./img/result/' + str(method) + '_' + str(threshold) + '_' + str(file), search_image_with_boxes)
         print('图片' + file + '已保存')
+        print(similarities)
 
     print('mask:' + str(method) + ' threshold:' + str(threshold) + ' count:' + str(count) + ' OK')
 
-
 if __name__ == '__main__':
-    methods = [cv2.TM_CCOEFF_NORMED]
-    thresholds = [0.2, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 0.27, 0.28, 0.29, 0.3]
-    for method in methods:
-        for threshold in thresholds:
-            image_recognition_test(method, threshold)
+    time1 = time.time()
+    image_recognition_test(cv2.TM_CCOEFF_NORMED, 0.28)
+    time2 = time.time()
+    print('总共耗时：' + str(time2 - time1) + 's')
