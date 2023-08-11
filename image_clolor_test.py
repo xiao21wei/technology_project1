@@ -64,7 +64,7 @@ def model_color_test():
             for prev_top_left, prev_bottom_right in matched_locations:
                 if top_left[0] < prev_bottom_right[0] and bottom_right[0] > prev_top_left[0] and \
                         top_left[1] < prev_bottom_right[1] and bottom_right[1] > prev_top_left[1]:
-                    overlapping = True
+                    overlapping = False
                     break
 
             if not overlapping:
